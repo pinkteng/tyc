@@ -13,11 +13,13 @@ import com.example.demo.entity.User;
 import com.example.demo.entity.UserInfo;
 import com.example.demo.mapper.UserInfoMapper;
 import com.example.demo.mapper.UserMapper;
+import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserService;
 import com.example.demo.utils.RedisCache;
 import com.example.demo.vo.UserDetailVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +41,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     private UserInfoMapper userInfoMapper;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     // Redis缓存键前缀
     private static final String USER_DETAIL_KEY_PREFIX = "user:detail:";
     private static final String USER_DETAIL_LIST_KEY = "user:detail:list";
@@ -52,7 +57,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Result<String> register(UserDTO userDTO) {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(User::getUsername, userDTO.getUsername());
-        User exist = getOne(wrapper); // 现在有这个方法了
+        User exist = getOne(wrapper);
 
         if (exist != null) {
             return Result.error(ResultCode.USER_HAS_EXISTED);
@@ -75,10 +80,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             return Result.error(ResultCode.USER_NOT_EXIST);
         }
+
+        // 验证密码
         if (!user.getPassword().equals(userDTO.getPassword())) {
-            return Result.error(ResultCode.PASSWORD_ERROR);
+            return Result.error(ResultCode.PARAM_ERROR);
         }
-        return Result.success("登录成功");
+
+        // 生成 JWT Token
+        String jwt = jwtUtil.generateToken(userDTO.getUsername());
+        return Result.success(jwt);
     }
 
     @Override
@@ -217,8 +227,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 key,
                 JSONUtil.toJsonStr(detail),
                 10,
-                TimeUnit.MINUTES
-        );
+                TimeUnit.MINUTES);
         log.info("用户详情已存入Redis缓存，用户ID: {}", userId);
 
         return Result.success(detail);

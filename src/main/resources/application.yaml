@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/lab_db
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: 123456
     driver-class-name: org.postgresql.Driver
@@ -14,3 +14,9 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
   mapper-locations: classpath*:/mapper/**/*.xml
+
+# JWT 配置
+security:
+  jwt:
+    secret: demo-jwt-secret-key-for-spring-security-2026
+    expiration-millis: 7200000
