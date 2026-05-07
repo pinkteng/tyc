@@ -17,26 +17,26 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+        @Autowired
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(Customizer.withDefaults()) // 开启全局CORS配置
-                .csrf(AbstractHttpConfigurer::disable) // 关闭 CSRF 防护，前后端分离项目通常关闭
-                .sessionManagement(session -> // 配置 Session 管理策略，设置无状态
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authorizeHttpRequests(auth -> auth // 重点：配置接口访问规则
-                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll() // 放行注册接口
-                        .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll() // 放行登录接口
-                        .anyRequest().authenticated() // 其他所有请求都必须先认证
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 添加JWT过滤器
-                .formLogin(AbstractHttpConfigurer::disable) // 关闭 Spring Security 默认表单登录
-                .httpBasic(AbstractHttpConfigurer::disable); // 关闭 httpBasic 默认认证
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .cors(Customizer.withDefaults()) // 开启全局CORS配置
+                                .csrf(AbstractHttpConfigurer::disable) // 关闭 CSRF 防护，前后端分离项目通常关闭
+                                .sessionManagement(session -> // 配置 Session 管理策略，设置无状态
+                                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(auth -> auth // 重点：配置接口访问规则
+                                                .requestMatchers(HttpMethod.POST, "/api/users").permitAll() // 放行注册接口
+                                                .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll() // 放行登录接口
+                                                .requestMatchers("/api/chat").permitAll() // 放行聊天接口
+                                                .anyRequest().authenticated() // 其他所有请求都必须先认证
+                                )
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 添加JWT过滤器
+                                .formLogin(AbstractHttpConfigurer::disable) // 关闭 Spring Security 默认表单登录
+                                .httpBasic(AbstractHttpConfigurer::disable); // 关闭 httpBasic 默认认证
 
-        return http.build();
-    }
+                return http.build();
+        }
 }

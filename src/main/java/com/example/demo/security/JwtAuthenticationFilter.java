@@ -27,6 +27,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private UserMapper userMapper;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        // 对聊天接口跳过 JWT 验证
+        String path = request.getRequestURI();
+        return path.startsWith("/api/chat");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,

@@ -13,8 +13,11 @@ import java.util.Map;
 
 public interface UserService extends IService<User> {
     Result<String> register(UserDTO userDTO);
+
     Result<String> login(UserDTO userDTO);
+
     Result<User> getUserById(Long id);
+
     Result<Object> getUserPage(Integer pageNum, Integer pageSize);
 
     // ==================== Redis缓存 + 多表联查方法 ====================

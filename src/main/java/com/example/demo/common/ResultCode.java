@@ -15,6 +15,11 @@ public enum ResultCode {
         this.msg = msg;
     }
 
-    public int getCode() { return code; }
-    public String getMsg() { return msg; }
+    public int getCode() {
+        return code;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
 }
