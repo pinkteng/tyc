@@ -12,6 +12,12 @@ spring:
   ai:
     dashscope:
       api-key: ${AI_DASHSCOPE_API_KEY}
+    retry:
+      max-attempts: 3
+      backoff:
+        initial-interval: 2000
+        multiplier: 2
+        max-interval: 10000
 
 mybatis-plus:
   configuration:
